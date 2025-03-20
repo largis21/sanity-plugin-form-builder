@@ -30,6 +30,23 @@ export const baseFormFields: FieldDefinition[] = [
   }),
 
   defineField({
+    name: 'width',
+    title: 'Width',
+    type: 'string',
+    initialValue: '12',
+    validation: (Rule) => Rule.required(),
+    group: 'field',
+    options: {
+      list: [
+        {title: 'Full width', value: '12'},
+        {title: 'Half width', value: '6'},
+        {title: 'Third width', value: '4'},
+        {title: 'Quarter width', value: '3'},
+      ],
+    },
+  }),
+
+  defineField({
     name: 'required',
     title: 'Required',
     type: 'boolean',
@@ -90,9 +107,15 @@ function LabelField(props: ObjectFieldProps) {
 }
 
 export const baseFieldSelection = {
-  required: 'required',
+  title: 'name.title',
+  name: 'name.name',
+  width: 'coalesce(width, "12")',
+  required: 'coalesce(required, false)',
 }
 
 export type BaseFieldSelection = {
+  title?: string
+  name?: string
+  width: string
   required: boolean
 }

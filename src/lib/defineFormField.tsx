@@ -1,5 +1,6 @@
 import {StandardSchemaV1} from '@standard-schema/spec'
 import {ComponentType, ReactNode} from 'react'
+import {UseFormRegister} from 'react-hook-form'
 import {
   defineType,
   FieldDefinition,
@@ -8,7 +9,7 @@ import {
   SchemaTypeDefinition,
 } from 'sanity'
 
-import {BaseFieldSelection, baseFormFields} from '../schemas/baseFormFields'
+import {BaseFieldSelection, baseFieldSelection, baseFormFields} from '../schemas/baseFormFields'
 import {withPluginScope} from './constants'
 
 export type FormFieldDefinitionInput<
@@ -43,15 +44,31 @@ export type FormFieldDefinitionInput<
     DANGER_overrideSchemaProperties?: Record<any, any>
   }
   select: TSelect
-  validationSchema: (fieldValue: TSelection) => StandardSchemaV1
-  render: ComponentType<{field: TSelection}>
+  validationSchema: (selection: TSelection) => StandardSchemaV1
+  render: ComponentType<{
+    field: TSelection
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    register: UseFormRegister<Record<string, any>>
+    error?: string
+  }>
 }
 
 export type FormFieldDefinition = FormFieldDefinitionInput & {
   schema: SchemaTypeDefinition
 }
-
 export function defineFormField<
+  TSelect extends Record<string, string> = Record<string, string>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TSelection extends Record<keyof TSelect | keyof BaseFieldSelection, any> = Record<
+    keyof TSelect | keyof BaseFieldSelection,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
+  >,
+>(definition: FormFieldDefinitionInput<TSelect, TSelection>) {
+  return definition
+}
+
+export function convertToInternalFormFieldDefinition<
   TSelect extends Record<string, string> = Record<string, string>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TSelection extends Record<keyof TSelect | keyof BaseFieldSelection, any> = Record<
@@ -63,6 +80,7 @@ export function defineFormField<
   // @ts-expect-error feel free to fix the type if you want
   return {
     ...definition,
+    select: {...baseFieldSelection, ...definition.select},
     schema: defineType({
       name: withPluginScope(`field.${definition.name}`),
       title: definition.title,

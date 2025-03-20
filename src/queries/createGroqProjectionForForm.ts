@@ -5,8 +5,6 @@ export const createGroqProjectionForForm = (formFields: FormFieldDefinition[]) =
 title,
 ingress,
 'fields': fields[]{
-  _key,
-  _type,
   ${createGroqProjectionForFields(formFields)}
 }
 `

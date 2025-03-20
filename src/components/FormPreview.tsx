@@ -3,11 +3,9 @@ import {evaluate, parse} from 'groq-js'
 import {ReactNode, useEffect, useState} from 'react'
 import {UserViewComponent} from 'sanity/structure'
 
-import {FormFieldDefinition} from '../lib/defineFormField'
 import {RenderForm as iRenderForm} from './RenderForm'
 
 export const GetFormPreviewComponent = (
-  formFields: FormFieldDefinition[],
   groqProjection: string,
   RenderForm: iRenderForm,
 ): UserViewComponent => {
@@ -35,7 +33,13 @@ export const GetFormPreviewComponent = (
     }, [props.document.displayed])
 
     return (
-      <Flex justify={'center'} align="center" height={'fill'}>
+      <Flex
+        justify={'center'}
+        align="center"
+        height={'fill'}
+        style={{backgroundColor: '#FFF', color: '#000'}}
+        padding={4}
+      >
         {renderedForm}
       </Flex>
     )
