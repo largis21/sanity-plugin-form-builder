@@ -9,7 +9,6 @@ export function getRenderForm(formFields: FormFieldDefinition[]) {
   return function Form(props: {form: iForm}) {
     return (
       <form>
-        {props.form.title && <h1>{props.form.title}</h1>}
         {props.form.fields?.map((field) => {
           const fieldDefinition = formFields.find((f) => f.name === field._type)
 
