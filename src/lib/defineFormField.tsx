@@ -10,15 +10,13 @@ import {
 } from 'sanity'
 
 import {BaseFieldSelection, baseFieldSelection, baseFormFields} from '../schemas/baseFormFields'
-import {withPluginScope} from './constants'
+import {getFormFieldName} from './constants'
 
 export type FormFieldDefinitionInput<
   TSelect extends Record<string, string> = Record<string, string>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TSelection extends Record<keyof TSelect | keyof BaseFieldSelection, any> = Record<
-    keyof TSelect | keyof BaseFieldSelection,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
+  TSelection extends Record<keyof TSelect | keyof BaseFieldSelection, unknown> = Record<
+    keyof TSelect,
+    unknown
   >,
 > = {
   name: string
@@ -46,9 +44,8 @@ export type FormFieldDefinitionInput<
   select: TSelect
   validationSchema: (selection: TSelection) => StandardSchemaV1
   render: ComponentType<{
-    field: TSelection
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    register: UseFormRegister<Record<string, any>>
+    field: Omit<TSelection, 'name'> & {name: string}
+    register: UseFormRegister<Record<string, unknown>>
     error?: string
   }>
 }
@@ -58,31 +55,20 @@ export type FormFieldDefinition = FormFieldDefinitionInput & {
 }
 export function defineFormField<
   TSelect extends Record<string, string> = Record<string, string>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TSelection extends Record<keyof TSelect | keyof BaseFieldSelection, any> = Record<
-    keyof TSelect | keyof BaseFieldSelection,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
-  >,
+  TSelection extends Record<keyof TSelect | keyof BaseFieldSelection, unknown> &
+    BaseFieldSelection = Record<keyof TSelect, unknown> & BaseFieldSelection,
 >(definition: FormFieldDefinitionInput<TSelect, TSelection>) {
   return definition
 }
 
-export function convertToInternalFormFieldDefinition<
-  TSelect extends Record<string, string> = Record<string, string>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TSelection extends Record<keyof TSelect | keyof BaseFieldSelection, any> = Record<
-    keyof TSelect | keyof BaseFieldSelection,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any
-  >,
->(definition: FormFieldDefinitionInput<TSelect, TSelection>): FormFieldDefinition {
-  // @ts-expect-error feel free to fix the type if you want
+export function convertToInternalFormFieldDefinition(
+  definition: FormFieldDefinitionInput,
+): FormFieldDefinition {
   return {
     ...definition,
     select: {...baseFieldSelection, ...definition.select},
     schema: defineType({
-      name: withPluginScope(`field.${definition.name}`),
+      name: getFormFieldName(definition.name),
       title: definition.title,
       type: 'object',
       icon: definition.schema?.icon,
@@ -91,14 +77,17 @@ export function convertToInternalFormFieldDefinition<
         {title: 'Validation', name: 'validation'},
         ...(definition.schema?.groups || []),
       ],
-      fieldsets: definition.schema?.fieldSets || [],
+      fieldsets: [
+        {name: 'title', title: '', options: {columns: 2, collapsible: false}},
+        ...(definition.schema?.fieldSets || []),
+      ],
       fields: [
         ...baseFormFields,
         ...(definition?.schema?.fields?.map((e) => ({...e, group: e.group || 'field'})) || []),
       ],
       preview: {
         select: {
-          title: 'name.title',
+          title: 'title',
         },
         prepare({title, name}) {
           return {

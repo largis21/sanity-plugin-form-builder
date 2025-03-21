@@ -2,7 +2,8 @@ import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
-import {defaultDocumentNodeResolver, formPlugin} from './plugin'
+import {defaultDocumentNodeResolver, formPlugin} from './plugins/form-builder'
+import {formViewer} from './plugins/form-viewer'
 
 export default defineConfig({
   name: 'default',
@@ -17,6 +18,7 @@ export default defineConfig({
     }),
     visionTool(),
     formPlugin(),
+    formViewer(),
   ],
 
   schema: {

@@ -1,7 +1,11 @@
-export const PLUGIN_SCOPE = 'form-builder'
+export const PLUGIN_SCOPE = 'form-plugin'
 
 export const withPluginScope = (name: string) => `${PLUGIN_SCOPE}.${name}`
 
 export const schemaTypeNames = {
-  formBuilder: withPluginScope('formBuilder'),
+  formBuilder: withPluginScope('builder'),
 } as const
+
+export function getFormFieldName(name: string) {
+  return `${schemaTypeNames.formBuilder}.field.${name}`
+}

@@ -1,3 +1,4 @@
+import {StandardSchemaV1} from '@standard-schema/spec'
 import {Plugin} from 'sanity'
 import {DefaultDocumentNodeResolver} from 'sanity/structure'
 
@@ -8,11 +9,13 @@ import {
   FormFieldDefinition,
   FormFieldDefinitionInput,
 } from './lib/defineFormField'
-import {createGroqProjectionForForm} from './queries/createGroqProjectionForForm'
+import {getFormValidationSchema} from './lib/getFormValidationSchema'
+import {createGroqProjectionForForm, Form} from './queries/createGroqProjectionForForm'
 import {getFormBuilderSchema} from './schemas/builder'
 
 export interface PluginConfig {
-  fields: FormFieldDefinitionInput[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  fields: FormFieldDefinitionInput<any, any>[]
 }
 
 /**
@@ -22,8 +25,10 @@ export interface PluginConfig {
  * form-builder/index.ts
  * ```ts
  * const {formPlugin} = configureFormPlugin({
- *   customFields: [
- *     // Add your custom fields here
+ *   fields: [
+ *     stringField,
+ *     textField,
+ *     checkboxField,
  *   ],
  * })
  *
@@ -48,6 +53,7 @@ export const configureFormPlugin = (
   groqProjection: string
   defaultDocumentNodeResolver: DefaultDocumentNodeResolver
   RenderForm: RenderForm
+  getFormValidationSchema: (form: Form) => StandardSchemaV1
 } => {
   const formFields: FormFieldDefinition[] = config.fields.map((field) =>
     convertToInternalFormFieldDefinition(field),
@@ -67,5 +73,6 @@ export const configureFormPlugin = (
     groqProjection,
     defaultDocumentNodeResolver: defaultDocumentNodeResolver(groqProjection, renderForm),
     RenderForm: renderForm,
+    getFormValidationSchema: (form: Form) => getFormValidationSchema(formFields, form),
   }
 }

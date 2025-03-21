@@ -5,5 +5,9 @@ const formPluginReturns = configureFormPlugin({
   fields: [stringField],
 })
 
-export const formPlugin = formPluginReturns.formPlugin
-export const defaultDocumentNodeResolver = formPluginReturns.defaultDocumentNodeResolver
+export const {
+  formPlugin,
+  RenderForm,
+  defaultDocumentNodeResolver,
+  groqProjection: formGroqProjection,
+} = formPluginReturns

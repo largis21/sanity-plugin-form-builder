@@ -37,6 +37,7 @@ export function getRenderForm(formFields: FormFieldDefinition[]): RenderForm {
           maxWidth: '500px',
           width: '100%',
           boxSizing: 'border-box',
+          color: '#000',
         }}
       >
         <div style={{display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '1rem'}}>
@@ -48,9 +49,11 @@ export function getRenderForm(formFields: FormFieldDefinition[]): RenderForm {
               console.warn(`Could not find field definition for fieldType: '${field._type}'`)
               return null
             }
+
             return (
               <FormField field={field} key={field._key}>
                 <fieldDefinition.render
+                  // @ts-expect-error field.name is validated further up
                   field={field}
                   register={register}
                   error={errors[field.name!]?.message}

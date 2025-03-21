@@ -33,8 +33,10 @@ export default defineFormField({
           }
         },
       })
-      .min(selection.required ? selection.minLength || 1 : selection.minLength)
-      .max(selection.maxLength || Infinity)
+      .min(
+        selection.required ? (selection.minLength as number) || 1 : (selection.minLength as number),
+      )
+      .max((selection.maxLength as number) || Infinity)
 
     if (selection.required) {
       return schema
@@ -84,14 +86,14 @@ export default defineFormField({
   render: ({field, register, error}) => {
     return (
       <div>
-        <label style={{display: 'flex', flexDirection: 'column'}}>
+        <label style={{display: 'flex', flexDirection: 'column', fontSize: '14px'}}>
           {field.title}
           <input
             type="text"
-            placeholder={field.placeholder}
+            placeholder={field.placeholder as string | undefined}
             required={field.required}
-            minLength={field.minLength}
-            maxLength={field.maxLength}
+            minLength={field.minLength as number | undefined}
+            maxLength={field.maxLength as number | undefined}
             style={{
               marginTop: '4px',
               padding: '8px',

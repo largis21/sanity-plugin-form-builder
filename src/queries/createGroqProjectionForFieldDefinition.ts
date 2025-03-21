@@ -9,7 +9,8 @@ ${Object.entries(fieldDefinition.select)
   .join(',\n')}
 `
 
-export type BaseFormField = BaseFieldSelection & {
+export type FormField = BaseFieldSelection & {
   _type: string
   _key: string
+  [key: string]: unknown
 }

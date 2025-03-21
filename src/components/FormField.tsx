@@ -1,6 +1,6 @@
 import {ReactNode} from 'react'
 
-import {FormField as iFormField} from '../queries/createGroqProjectForFields'
+import {FormField as iFormField} from '../queries/createGroqProjectionForFieldDefinition'
 
 export function FormField(props: {field: iFormField; children: ReactNode}) {
   return (

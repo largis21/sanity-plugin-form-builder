@@ -1,7 +1,7 @@
 import {FormFieldDefinition} from '../lib/defineFormField'
 import {
-  BaseFormField,
   createGroqProjectionForFieldDefinition,
+  FormField,
 } from './createGroqProjectionForFieldDefinition'
 
 export const createGroqProjectionForFields = (fields: FormFieldDefinition[]) =>
@@ -15,6 +15,4 @@ export const createGroqProjectionForFields = (fields: FormFieldDefinition[]) =>
     )
     .join(',')
 
-export type FormField = BaseFormField & {
-  [key: string]: unknown
-}
+export type FormFields = FormField[]

@@ -1,7 +1,8 @@
 import {FormFieldDefinition} from '../lib/defineFormField'
-import {createGroqProjectionForFields, FormField} from './createGroqProjectForFields'
+import {createGroqProjectionForFields, FormFields} from './createGroqProjectForFields'
 
 export const createGroqProjectionForForm = (formFields: FormFieldDefinition[]) => `
+_id,
 title,
 ingress,
 'fields': fields[]{
@@ -10,7 +11,8 @@ ingress,
 `
 
 export type Form = {
+  _id: string
   title?: string
   ingres?: string
-  fields?: FormField[]
+  fields?: FormFields
 }
