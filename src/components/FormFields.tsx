@@ -2,7 +2,7 @@ import {ComponentType, DetailedHTMLProps, HTMLAttributes} from 'react'
 import {UseFormReturn} from 'react-hook-form'
 
 import {FieldComponentProps, FormFieldDefinition} from '../lib/defineFormField'
-import {Form as iForm} from '../queries/createGroqProjectionForForm'
+import {FormProjectionResult as iForm} from '../queries/createGroqProjectionForForm'
 import {DefaultError} from './DefaultError'
 import {DefaultField} from './DefaultField'
 import {FormFieldWrapper} from './FormFieldWrapper'

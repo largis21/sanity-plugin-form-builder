@@ -1,9 +1,12 @@
 import {z} from 'zod'
 
-import {Form} from '../queries/createGroqProjectionForForm'
+import {FormProjectionResult} from '../queries/createGroqProjectionForForm'
 import {FormFieldDefinition} from './defineFormField'
 
-export function getFormValidationSchema(formFields: FormFieldDefinition[], form: Form) {
+export function getFormValidationSchema(
+  formFields: FormFieldDefinition[],
+  form: FormProjectionResult,
+) {
   return z.object(
     form.fields?.reduce((acc, field) => {
       if (!field.name) return acc

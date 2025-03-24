@@ -9,7 +9,7 @@ ${Object.entries(fieldDefinition.select)
   .join(',\n')}
 `
 
-export type FormField = BaseFieldSelection & {
+export type FormFieldProjectionResult = BaseFieldSelection & {
   _type: string
   _key: string
   [key: string]: unknown

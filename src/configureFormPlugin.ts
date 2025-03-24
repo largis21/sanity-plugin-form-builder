@@ -10,12 +10,29 @@ import {
   FormFieldDefinitionInput,
 } from './lib/defineFormField'
 import {getFormValidationSchema} from './lib/getFormValidationSchema'
-import {createGroqProjectionForForm, Form} from './queries/createGroqProjectionForForm'
+import {
+  createGroqProjectionForForm,
+  FormProjectionResult,
+} from './queries/createGroqProjectionForForm'
 import {getFormBuilderSchema} from './schemas/builder'
 
 export interface PluginConfig {
+  /**
+   * An array of field definitions to be used in the form builder
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fields: FormFieldDefinitionInput<any, any>[]
+
+  /**
+   * Configuration for the submissions tool
+   */
+  submissionsTool?: {
+    /**
+     * Whether or not to enable the submissions tool
+     * @defaultValue true
+     */
+    enabled: boolean
+  }
 }
 
 /**
@@ -53,26 +70,27 @@ export const configureFormPlugin = (
   groqProjection: string
   defaultDocumentNodeResolver: DefaultDocumentNodeResolver
   FormFields: FormFieldsComponent
-  getFormValidationSchema: (form: Form) => StandardSchemaV1
+  getFormValidationSchema: (form: FormProjectionResult) => StandardSchemaV1
 } => {
-  const formFields: FormFieldDefinition[] = config.fields.map((field) =>
+  const fieldDefs: FormFieldDefinition[] = config.fields.map((field) =>
     convertToInternalFormFieldDefinition(field),
   )
 
-  const groqProjection = createGroqProjectionForForm(formFields)
+  const groqProjection = createGroqProjectionForForm(fieldDefs)
 
-  const FormFields = getFormFieldsComponent(formFields)
+  const FormFields = getFormFieldsComponent(fieldDefs)
 
   return {
     formPlugin: () => ({
       name: 'sanity-plugin-form-builder',
       schema: {
-        types: [getFormBuilderSchema(formFields), ...formFields.map((field) => field.schema)],
+        types: [getFormBuilderSchema(fieldDefs), ...fieldDefs.map((field) => field.schema)],
       },
     }),
     groqProjection,
-    defaultDocumentNodeResolver: defaultDocumentNodeResolver(groqProjection, FormFields),
+    defaultDocumentNodeResolver: defaultDocumentNodeResolver(groqProjection, fieldDefs, FormFields),
     FormFields: FormFields,
-    getFormValidationSchema: (form: Form) => getFormValidationSchema(formFields, form),
+    getFormValidationSchema: (form: FormProjectionResult) =>
+      getFormValidationSchema(fieldDefs, form),
   }
 }

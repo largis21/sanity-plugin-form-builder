@@ -9,4 +9,4 @@ export {
   type FormFieldDefinitionInput,
   type InputComponentProps,
 } from './lib/defineFormField'
-export type {Form} from './queries/createGroqProjectionForForm'
+export type {FormProjectionResult as Form} from './queries/createGroqProjectionForForm'

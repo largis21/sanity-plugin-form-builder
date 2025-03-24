@@ -1,17 +1,20 @@
 import {FormFieldDefinition} from '../lib/defineFormField'
-import {createGroqProjectionForFields, FormFields} from './createGroqProjectForFields'
+import {
+  createGroqProjectionForFields,
+  FormFieldsProjectionResult,
+} from './createGroqProjectForFields'
 
-export const createGroqProjectionForForm = (formFields: FormFieldDefinition[]) => `
+export const createGroqProjectionForForm = (fieldDefs: FormFieldDefinition[]) => `
 _id,
 title,
 submitter,
 'fields': fields[]{
-  ${createGroqProjectionForFields(formFields)}
+  ${createGroqProjectionForFields(fieldDefs)}
 }
 `
 
-export type Form = {
+export type FormProjectionResult = {
   _id: string
   title?: string
-  fields?: FormFields
+  fields?: FormFieldsProjectionResult
 }
