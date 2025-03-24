@@ -2,7 +2,7 @@ import {StandardSchemaV1} from '@standard-schema/spec'
 import {Plugin} from 'sanity'
 import {DefaultDocumentNodeResolver} from 'sanity/structure'
 
-import {getRenderForm, RenderForm} from './components/RenderForm'
+import {FormFieldsComponent, getFormFieldsComponent} from './components/FormFields'
 import {defaultDocumentNodeResolver} from './lib/defaultDocumentNodeResolver'
 import {
   convertToInternalFormFieldDefinition,
@@ -52,7 +52,7 @@ export const configureFormPlugin = (
   formPlugin: Plugin
   groqProjection: string
   defaultDocumentNodeResolver: DefaultDocumentNodeResolver
-  RenderForm: RenderForm
+  FormFields: FormFieldsComponent
   getFormValidationSchema: (form: Form) => StandardSchemaV1
 } => {
   const formFields: FormFieldDefinition[] = config.fields.map((field) =>
@@ -61,7 +61,7 @@ export const configureFormPlugin = (
 
   const groqProjection = createGroqProjectionForForm(formFields)
 
-  const renderForm = getRenderForm(formFields)
+  const FormFields = getFormFieldsComponent(formFields)
 
   return {
     formPlugin: () => ({
@@ -71,8 +71,8 @@ export const configureFormPlugin = (
       },
     }),
     groqProjection,
-    defaultDocumentNodeResolver: defaultDocumentNodeResolver(groqProjection, renderForm),
-    RenderForm: renderForm,
+    defaultDocumentNodeResolver: defaultDocumentNodeResolver(groqProjection, FormFields),
+    FormFields: FormFields,
     getFormValidationSchema: (form: Form) => getFormValidationSchema(formFields, form),
   }
 }

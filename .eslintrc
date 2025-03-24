@@ -15,5 +15,6 @@
   "rules": {
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "consistent-return": "off",
+    "react/jsx-no-bind": "off",
   },
 }

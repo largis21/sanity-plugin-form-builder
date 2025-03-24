@@ -12,12 +12,53 @@ import {
 import {BaseFieldSelection, baseFieldSelection, baseFormFields} from '../schemas/baseFormFields'
 import {getFormFieldName} from './constants'
 
-export type FormFieldDefinitionInput<
+type SharedFormComponentProps<
   TSelect extends Record<string, string> = Record<string, string>,
-  TSelection extends Record<keyof TSelect | keyof BaseFieldSelection, unknown> = Record<
+  TSelection extends Record<keyof TSelect, unknown> & BaseFieldSelection = Record<
     keyof TSelect,
     unknown
-  >,
+  > &
+    BaseFieldSelection,
+> = {
+  field: TSelection & {name: string}
+  error?: string
+}
+
+export type ErrorComponentProps = {
+  error: string
+}
+
+export type InputComponentProps<
+  TSelect extends Record<string, string> = Record<string, string>,
+  TSelection extends Record<keyof TSelect, unknown> & BaseFieldSelection = Record<
+    keyof TSelect,
+    unknown
+  > &
+    BaseFieldSelection,
+> = SharedFormComponentProps<TSelect, TSelection> & {
+  register?: UseFormRegister<Record<string, unknown>>
+}
+
+export type FieldComponentProps<
+  TSelect extends Record<string, string> = Record<string, string>,
+  TSelection extends Record<keyof TSelect, unknown> & BaseFieldSelection = Record<
+    keyof TSelect,
+    unknown
+  > &
+    BaseFieldSelection,
+> = SharedFormComponentProps<TSelect, TSelection> & {
+  inputProps: InputComponentProps
+  renderInput: (props: InputComponentProps) => ReactNode
+  renderError: (props: ErrorComponentProps) => ReactNode
+}
+
+export type FormFieldDefinitionInput<
+  TSelect extends Record<string, string> = Record<string, string>,
+  TSelection extends Record<keyof TSelect, unknown> & BaseFieldSelection = Record<
+    keyof TSelect,
+    unknown
+  > &
+    BaseFieldSelection,
 > = {
   name: string
   title?: string
@@ -43,11 +84,11 @@ export type FormFieldDefinitionInput<
   }
   select: TSelect
   validationSchema: (selection: TSelection) => StandardSchemaV1
-  render: ComponentType<{
-    field: Omit<TSelection, 'name'> & {name: string}
-    register: UseFormRegister<Record<string, unknown>>
-    error?: string
-  }>
+  components: {
+    field?: (props: FieldComponentProps<TSelect, TSelection>) => ReactNode
+    error?: (props: ErrorComponentProps) => ReactNode
+    input: (props: InputComponentProps<TSelect, TSelection>) => ReactNode
+  }
 }
 
 export type FormFieldDefinition = FormFieldDefinitionInput & {
@@ -55,8 +96,11 @@ export type FormFieldDefinition = FormFieldDefinitionInput & {
 }
 export function defineFormField<
   TSelect extends Record<string, string> = Record<string, string>,
-  TSelection extends Record<keyof TSelect | keyof BaseFieldSelection, unknown> &
-    BaseFieldSelection = Record<keyof TSelect, unknown> & BaseFieldSelection,
+  TSelection extends Record<keyof TSelect, unknown> & BaseFieldSelection = Record<
+    keyof TSelect,
+    unknown
+  > &
+    BaseFieldSelection,
 >(definition: FormFieldDefinitionInput<TSelect, TSelection>) {
   return definition
 }

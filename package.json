@@ -53,6 +53,7 @@
     "groq-js": "^1.16.1",
     "react-hook-form": "^7.54.2",
     "semantic-release": "^24.2.3",
+    "uuid": "^11.1.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {

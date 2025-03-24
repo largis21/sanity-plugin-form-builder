@@ -2,7 +2,7 @@ import {ReactNode} from 'react'
 
 import {FormField as iFormField} from '../queries/createGroqProjectionForFieldDefinition'
 
-export function FormField(props: {field: iFormField; children: ReactNode}) {
+export function FormFieldWrapper(props: {field: iFormField; children: ReactNode}) {
   return (
     <div
       style={{

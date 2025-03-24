@@ -1,8 +1,7 @@
-import {configureFormPlugin} from 'sanity-plugin-form-builder'
-import stringField from './fields/stringField'
+import {configureFormPlugin, defaultStringField} from 'sanity-plugin-form-builder'
 
 const formPluginReturns = configureFormPlugin({
-  fields: [stringField],
+  fields: [defaultStringField],
 })
 
 export const {

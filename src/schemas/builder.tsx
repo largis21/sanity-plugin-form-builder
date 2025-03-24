@@ -22,13 +22,6 @@ export const getFormBuilderSchema = (formFields: FormFieldDefinition[]) =>
       }),
 
       defineField({
-        name: 'ingress',
-        title: 'Ingress',
-        type: 'text',
-        group: 'builder',
-      }),
-
-      defineField({
         name: 'fields',
         title: 'Fields',
         type: 'array',

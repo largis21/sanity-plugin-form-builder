@@ -1,9 +1,9 @@
 import {defineField} from 'sanity'
 import {z} from 'zod'
 
-import {defineFormField} from 'sanity-plugin-form-builder'
+import {defineFormField} from '../lib/defineFormField'
 
-export default defineFormField({
+export const defaultStringField = defineFormField({
   name: 'string',
   title: 'Text',
   select: {
@@ -101,15 +101,8 @@ export default defineFormField({
           color: '#000',
           borderRadius: '4px',
         }}
-        {...register(field.name)}
+        {...(register?.(field.name) || {})}
       />
-    ),
-    field: ({field, renderInput, inputProps, error, renderError}) => (
-      <label style={{display: 'flex', flexDirection: 'column', fontSize: '14px'}}>
-        {field.title}
-        {renderInput(inputProps)}
-        {error && renderError({error})}
-      </label>
     ),
   },
 })

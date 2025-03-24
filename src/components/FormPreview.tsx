@@ -3,11 +3,11 @@ import {evaluate, parse} from 'groq-js'
 import {ReactNode, useEffect, useState} from 'react'
 import {UserViewComponent} from 'sanity/structure'
 
-import {RenderForm as iRenderForm} from './RenderForm'
+import {FormFieldsComponent} from './FormFields'
 
 export const GetFormPreviewComponent = (
   groqProjection: string,
-  RenderForm: iRenderForm,
+  FormFields: FormFieldsComponent,
 ): UserViewComponent => {
   const query = `*[0] { ${groqProjection} }`
   const queryAst = parse(query)
@@ -22,7 +22,7 @@ export const GetFormPreviewComponent = (
 
     const formResult = await form.get()
 
-    setRenderedForm(<RenderForm form={formResult} />)
+    setRenderedForm(<FormFields form={formResult} />)
   }
 
   return function FormPreview(props) {
@@ -40,7 +40,7 @@ export const GetFormPreviewComponent = (
         style={{backgroundColor: '#FFF', color: '#000'}}
         padding={4}
       >
-        {renderedForm}
+        <div style={{maxWidth: '500px'}}>{renderedForm}</div>
       </Flex>
     )
   }

@@ -4,6 +4,7 @@ export const withPluginScope = (name: string) => `${PLUGIN_SCOPE}.${name}`
 
 export const schemaTypeNames = {
   formBuilder: withPluginScope('builder'),
+  submission: withPluginScope('submission'),
 } as const
 
 export function getFormFieldName(name: string) {

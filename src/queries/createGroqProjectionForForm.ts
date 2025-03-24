@@ -4,7 +4,7 @@ import {createGroqProjectionForFields, FormFields} from './createGroqProjectForF
 export const createGroqProjectionForForm = (formFields: FormFieldDefinition[]) => `
 _id,
 title,
-ingress,
+submitter,
 'fields': fields[]{
   ${createGroqProjectionForFields(formFields)}
 }
@@ -13,6 +13,5 @@ ingress,
 export type Form = {
   _id: string
   title?: string
-  ingres?: string
   fields?: FormFields
 }

@@ -7,7 +7,7 @@ import {formGroqProjection, RenderForm} from '../form-builder'
 export function FormViewComponent() {
   const [loadedForms, setLoadedForms] = useState<Form[]>([])
   const [selectedFormId, setSelectedFormId] = useState<string | null>(null)
-  const client = useClient({apiVersion: '2021-03-25'})
+  const client = useClient({apiVersion: '2021-10-21'})
 
   useEffect(() => {
     const fetchForms = async () => {
@@ -28,7 +28,10 @@ export function FormViewComponent() {
       <Stack space={6}>
         <Stack space={2} style={{width: 320}}>
           <Text>Select a form:</Text>
-          <Select value={selectedFormId} onChange={(e) => setSelectedFormId(e.currentTarget.value)}>
+          <Select
+            value={selectedFormId || ''}
+            onChange={(e) => setSelectedFormId(e.currentTarget.value)}
+          >
             <option key={'0'} value={''}></option>
             {loadedForms.map((form) => (
               <option key={form._id} value={form._id}>
