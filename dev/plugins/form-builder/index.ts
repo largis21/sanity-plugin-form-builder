@@ -1,12 +1,16 @@
-import {configureFormPlugin, defaultStringField} from 'sanity-plugin-form-builder'
+import {
+  configureFormPlugin,
+  defaultStringField,
+  defaultTextField,
+  defaultCheckboxField,
+} from 'sanity-plugin-form-builder'
 
 const formPluginReturns = configureFormPlugin({
-  fields: [defaultStringField],
+  fields: [defaultStringField, defaultTextField, defaultCheckboxField],
 })
 
 export const {
   formPlugin,
-  RenderForm,
   defaultDocumentNodeResolver,
   groqProjection: formGroqProjection,
 } = formPluginReturns

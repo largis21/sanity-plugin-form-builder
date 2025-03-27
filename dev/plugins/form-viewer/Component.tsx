@@ -1,8 +1,8 @@
 import {useState, useEffect} from 'react'
-import {useClient} from 'sanity'
+import {FormField, useClient} from 'sanity'
 import {Form, schemaTypeNames} from 'sanity-plugin-form-builder'
 import {Box, Text, Select, Stack} from '@sanity/ui'
-import {formGroqProjection, RenderForm} from '../form-builder'
+import {formGroqProjection} from '../form-builder'
 
 export function FormViewComponent() {
   const [loadedForms, setLoadedForms] = useState<Form[]>([])
@@ -49,7 +49,7 @@ export function FormViewComponent() {
             borderRadius: '8px',
           }}
         >
-          {selectedForm && <RenderForm form={selectedForm} />}
+          {/* {selectedForm && <FormField form={selectedForm} />} */}
         </div>
       </Stack>
     </Box>

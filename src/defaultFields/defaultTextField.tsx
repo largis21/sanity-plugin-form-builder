@@ -1,11 +1,12 @@
 import {defineField} from 'sanity'
 import {z} from 'zod'
 
+import {autocompleteAttribute} from '../lib/autocompleteAttribute'
 import {defineFormField} from '../lib/defineFormField'
 
-export const defaultStringField = defineFormField({
-  name: 'string',
-  title: 'Text',
+export const defaultTextField = defineFormField({
+  name: 'text',
+  title: 'Multiline Text',
   select: {
     _type: '_type',
     placeholder: 'placeholder',
@@ -57,15 +58,10 @@ export const defaultStringField = defineFormField({
         name: 'autocomplete',
         title: 'Autocomplete',
         type: 'string',
-        description: (
-          <>
-            For example: &quot;email&quot;, &quot;given-name&quot;, &quot;family-name&quot;{' '}
-            <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#values">
-              Complete list here
-            </a>
-          </>
-        ),
         fieldset: 'advanced',
+        options: {
+          list: autocompleteAttribute,
+        },
       }),
 
       defineField({
@@ -85,8 +81,7 @@ export const defaultStringField = defineFormField({
   },
   components: {
     input: (props) => (
-      <input
-        type="text"
+      <textarea
         placeholder={props.field.placeholder as string | undefined}
         required={props.field.required}
         minLength={props.field.minLength as number | undefined}
@@ -100,6 +95,7 @@ export const defaultStringField = defineFormField({
           border: '1px solid #ccc',
           color: '#000',
           borderRadius: '4px',
+          resize: 'vertical',
         }}
         {...props.register?.(props.field.name)}
       />

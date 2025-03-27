@@ -67,9 +67,9 @@ export const GetFormPreviewComponent = (
                 borderRadius: '4px',
                 padding: '0.5rem 1rem',
                 cursor: 'pointer',
-                opacity: hook.formState.isSubmitting || !hook.formState.isValid ? 0.5 : 1,
+                opacity: hook.formState.isSubmitting ? 0.5 : 1,
               }}
-              disabled={hook.formState.isSubmitting || !hook.formState.isValid}
+              disabled={hook.formState.isSubmitting}
             >
               Submit
             </button>

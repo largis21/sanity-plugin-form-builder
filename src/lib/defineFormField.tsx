@@ -25,7 +25,7 @@ type SharedFormComponentProps<
 }
 
 export type ErrorComponentProps = {
-  error: string
+  error?: string | undefined
 }
 
 export type InputComponentProps<
@@ -82,7 +82,7 @@ export type FormFieldDefinitionInput<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     DANGER_overrideSchemaProperties?: Record<any, any>
   }
-  select: TSelect
+  select?: TSelect
   validationSchema: (selection: TSelection) => StandardSchemaV1
   components: {
     field?: (props: FieldComponentProps<TSelect, TSelection>) => ReactNode
@@ -91,8 +91,9 @@ export type FormFieldDefinitionInput<
   }
 }
 
-export type FormFieldDefinition = FormFieldDefinitionInput & {
+export type FormFieldDefinition = Omit<FormFieldDefinitionInput, 'select'> & {
   schema: SchemaTypeDefinition
+  select: Record<keyof BaseFieldSelection | string, string>
 }
 export function defineFormField<
   TSelect extends Record<string, string> = Record<string, string>,
@@ -110,7 +111,7 @@ export function convertToInternalFormFieldDefinition(
 ): FormFieldDefinition {
   return {
     ...definition,
-    select: {...baseFieldSelection, ...definition.select},
+    select: {...baseFieldSelection, ...(definition.select || {})},
     schema: defineType({
       name: getFormFieldName(definition.name),
       title: definition.title,
