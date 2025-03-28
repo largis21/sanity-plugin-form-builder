@@ -120,6 +120,7 @@ export function convertToInternalFormFieldDefinition(
       groups: [
         {title: 'Field', name: 'field', default: true},
         {title: 'Validation', name: 'validation'},
+        {title: 'Logic', name: 'logic'},
         ...(definition.schema?.groups || []),
       ],
       fieldsets: [

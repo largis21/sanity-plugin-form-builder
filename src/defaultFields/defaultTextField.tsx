@@ -46,7 +46,6 @@ export const defaultTextField = defineFormField({
     return schema.nullable()
   },
   schema: {
-    fieldSets: [{name: 'advanced', title: 'Advanced', options: {collapsed: true}}],
     fields: [
       defineField({
         name: 'placeholder',
@@ -58,10 +57,7 @@ export const defaultTextField = defineFormField({
         name: 'autocomplete',
         title: 'Autocomplete',
         type: 'string',
-        fieldset: 'advanced',
-        options: {
-          list: autocompleteAttribute,
-        },
+        options: {list: autocompleteAttribute},
       }),
 
       defineField({

@@ -16,16 +16,20 @@ export const baseFormFields: FieldDefinition[] = [
     type: 'slug',
     options: {
       source: (value, context) => (context.parent as Record<string, unknown>).title as string,
-      isUnique: (value, context) => {
-        const fields = context.document?.fields
-        if (!Array.isArray(fields)) return true
-
-        return fields.filter((field) => field.name.current === value).length === 1
+      isUnique: () => {
+        // Validation of slugs is handled by the fieldsArrayValidator
+        return true
       },
     },
     group: 'field',
     fieldset: 'title',
     validation: (Rule) => Rule.required(),
+  }),
+
+  defineField({
+    name: 'description',
+    type: 'string',
+    group: 'field',
   }),
 
   defineField({

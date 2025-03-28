@@ -2,6 +2,7 @@ import {defineField} from 'sanity'
 import {z} from 'zod'
 
 import {defineFormField} from '../lib/defineFormField'
+import {autocompleteAttribute} from '../lib/autocompleteAttribute'
 
 export const defaultStringField = defineFormField({
   name: 'string',
@@ -45,7 +46,6 @@ export const defaultStringField = defineFormField({
     return schema.nullable()
   },
   schema: {
-    fieldSets: [{name: 'advanced', title: 'Advanced', options: {collapsed: true}}],
     fields: [
       defineField({
         name: 'placeholder',
@@ -57,15 +57,7 @@ export const defaultStringField = defineFormField({
         name: 'autocomplete',
         title: 'Autocomplete',
         type: 'string',
-        description: (
-          <>
-            For example: &quot;email&quot;, &quot;given-name&quot;, &quot;family-name&quot;{' '}
-            <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#values">
-              Complete list here
-            </a>
-          </>
-        ),
-        fieldset: 'advanced',
+        options: {list: autocompleteAttribute},
       }),
 
       defineField({

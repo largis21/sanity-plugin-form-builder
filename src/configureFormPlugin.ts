@@ -15,6 +15,10 @@ import {
   FormProjectionResult,
 } from './queries/createGroqProjectionForForm'
 import {getFormBuilderSchema} from './schemas/builder'
+import fieldSelect from './schemas/fieldSelect'
+import {getGroupSchema} from './schemas/group'
+import logic from './schemas/logic'
+import {getReusableGroupSchema} from './schemas/reusableGroup'
 
 export interface PluginConfig {
   /**
@@ -84,7 +88,14 @@ export const configureFormPlugin = (
     formPlugin: () => ({
       name: 'sanity-plugin-form-builder',
       schema: {
-        types: [getFormBuilderSchema(fieldDefs), ...fieldDefs.map((field) => field.schema)],
+        types: [
+          getFormBuilderSchema(fieldDefs),
+          ...fieldDefs.map((field) => field.schema),
+          logic,
+          fieldSelect,
+          getGroupSchema(fieldDefs),
+          getReusableGroupSchema(fieldDefs),
+        ],
       },
     }),
     groqProjection,
