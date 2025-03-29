@@ -1,8 +1,8 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
-import {schemaTypeNames} from '../lib/constants'
-import {FormFieldDefinition} from '../lib/defineFormField'
-import {fieldsArrayValidator} from '../lib/fieldsArrayValidation'
+import {schemaTypeNames} from '../../lib/constants'
+import {FormFieldDefinition} from '../../lib/defineFormField'
+import {fieldsArrayValidator} from '../../lib/fieldsArrayValidation'
 
 export const getFormBuilderSchema = (formFields: FormFieldDefinition[]) =>
   defineType({
@@ -27,12 +27,19 @@ export const getFormBuilderSchema = (formFields: FormFieldDefinition[]) =>
         title: 'Fields',
         type: 'array',
         of: [
-          defineArrayMember({type: schemaTypeNames.group}),
-          defineArrayMember({type: 'reference', to: [{type: schemaTypeNames.reusableGroup}]}),
+          defineArrayMember({type: schemaTypeNames.fieldset}),
+          defineArrayMember({type: 'reference', to: [{type: schemaTypeNames.reusableFieldset}]}),
           ...formFields.map((field) => ({type: field.schema.name})),
         ],
         group: 'builder',
         validation: fieldsArrayValidator,
+      }),
+
+      defineField({
+        name: 'logic',
+        group: 'builder',
+        type: 'array',
+        of: [defineArrayMember({type: schemaTypeNames.logic})],
       }),
     ],
   })

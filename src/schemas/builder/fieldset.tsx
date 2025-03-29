@@ -1,14 +1,15 @@
 import {ProjectsIcon} from '@sanity/icons'
 import {defineField, defineType} from 'sanity'
 
-import {schemaTypeNames} from '../lib/constants'
-import {FormFieldDefinition} from '../lib/defineFormField'
+import {schemaTypeNames} from '../../lib/constants'
+import {FormFieldDefinition} from '../../lib/defineFormField'
+import {fieldsArrayValidator} from '../../lib/fieldsArrayValidation'
 
-export const getReusableGroupSchema = (fieldDefs: FormFieldDefinition[]) =>
+export const getFieldsetSchema = (fieldDefs: FormFieldDefinition[]) =>
   defineType({
-    name: schemaTypeNames.reusableGroup,
-    title: 'Reusable Group',
-    type: 'document',
+    name: schemaTypeNames.fieldset,
+    title: 'Fieldset',
+    type: 'object',
     icon: ProjectsIcon,
     fieldsets: [{name: 'title', title: '', options: {columns: 2, collapsible: false}}],
     preview: {
@@ -19,7 +20,7 @@ export const getReusableGroupSchema = (fieldDefs: FormFieldDefinition[]) =>
       prepare({title, fields}) {
         return {
           title: title,
-          subtitle: `Reusable group with ${fields?.length || 0} field${fields?.length === 1 ? '' : 's'}`,
+          subtitle: `Fieldset with ${fields?.length || 0} field${fields?.length === 1 ? '' : 's'}`,
         }
       },
     },
@@ -33,9 +34,14 @@ export const getReusableGroupSchema = (fieldDefs: FormFieldDefinition[]) =>
       }),
 
       defineField({
-        name: 'name',
+        name: 'slug',
         title: 'Name',
         type: 'slug',
+        options: {
+          source: (value, context) => (context.parent as Record<string, unknown>).title as string,
+          // Validation of slugs is handled by the fieldsArrayValidator
+          isUnique: () => true,
+        },
         fieldset: 'title',
         validation: (Rule) => Rule.required(),
       }),
@@ -45,7 +51,7 @@ export const getReusableGroupSchema = (fieldDefs: FormFieldDefinition[]) =>
         title: 'Fields',
         type: 'array',
         of: fieldDefs.map((field) => ({type: field.schema.name})),
-        validation: (Rule) => Rule.required().min(1),
+        validation: fieldsArrayValidator,
       }),
     ],
   })

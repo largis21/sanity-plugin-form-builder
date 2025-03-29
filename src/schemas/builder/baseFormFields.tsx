@@ -11,7 +11,7 @@ export const baseFormFields: FieldDefinition[] = [
   }),
 
   defineField({
-    name: 'name',
+    name: 'slug',
     title: 'Name',
     type: 'slug',
     options: {

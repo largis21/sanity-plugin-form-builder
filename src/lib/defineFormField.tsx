@@ -9,7 +9,11 @@ import {
   SchemaTypeDefinition,
 } from 'sanity'
 
-import {BaseFieldSelection, baseFieldSelection, baseFormFields} from '../schemas/baseFormFields'
+import {
+  BaseFieldSelection,
+  baseFieldSelection,
+  baseFormFields,
+} from '../schemas/builder/baseFormFields'
 import {getFormFieldName} from './constants'
 
 type SharedFormComponentProps<

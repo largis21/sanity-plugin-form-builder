@@ -1,5 +1,5 @@
 import {FormFieldDefinition} from '../lib/defineFormField'
-import {BaseFieldSelection} from '../schemas/baseFormFields'
+import {BaseFieldSelection} from '../schemas/builder/baseFormFields'
 
 export const createGroqProjectionForFieldDefinition = (fieldDefinition: FormFieldDefinition) => `
 _key,

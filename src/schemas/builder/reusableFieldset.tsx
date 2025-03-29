@@ -1,14 +1,15 @@
 import {ProjectsIcon} from '@sanity/icons'
 import {defineField, defineType} from 'sanity'
 
-import {schemaTypeNames} from '../lib/constants'
-import {FormFieldDefinition} from '../lib/defineFormField'
+import {schemaTypeNames} from '../../lib/constants'
+import {FormFieldDefinition} from '../../lib/defineFormField'
+import {fieldsArrayValidator} from '../../lib/fieldsArrayValidation'
 
-export const getGroupSchema = (fieldDefs: FormFieldDefinition[]) =>
+export const getReusableFieldsetSchema = (fieldDefs: FormFieldDefinition[]) =>
   defineType({
-    name: schemaTypeNames.group,
-    title: 'Group',
-    type: 'object',
+    name: schemaTypeNames.reusableFieldset,
+    title: 'Reusable Fieldset',
+    type: 'document',
     icon: ProjectsIcon,
     fieldsets: [{name: 'title', title: '', options: {columns: 2, collapsible: false}}],
     preview: {
@@ -19,7 +20,7 @@ export const getGroupSchema = (fieldDefs: FormFieldDefinition[]) =>
       prepare({title, fields}) {
         return {
           title: title,
-          subtitle: `Group with ${fields?.length || 0} field${fields?.length === 1 ? '' : 's'}`,
+          subtitle: `Reusable fieldset with ${fields?.length || 0} field${fields?.length === 1 ? '' : 's'}`,
         }
       },
     },
@@ -33,16 +34,13 @@ export const getGroupSchema = (fieldDefs: FormFieldDefinition[]) =>
       }),
 
       defineField({
-        name: 'name',
+        name: 'slug',
         title: 'Name',
         type: 'slug',
-        options: {
-          source: (value, context) => (context.parent as Record<string, unknown>).title as string,
-          // Validation of slugs is handled by the fieldsArrayValidator
-          isUnique: () => true,
-        },
         fieldset: 'title',
         validation: (Rule) => Rule.required(),
+        // Validation of slugs is handled by the fieldsArrayValidator
+        options: {source: 'title', isUnique: () => true},
       }),
 
       defineField({
@@ -50,7 +48,7 @@ export const getGroupSchema = (fieldDefs: FormFieldDefinition[]) =>
         title: 'Fields',
         type: 'array',
         of: fieldDefs.map((field) => ({type: field.schema.name})),
-        validation: (Rule) => Rule.required().min(1),
+        validation: fieldsArrayValidator,
       }),
     ],
   })

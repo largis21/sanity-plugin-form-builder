@@ -15,10 +15,13 @@ import {
   FormProjectionResult,
 } from './queries/createGroqProjectionForForm'
 import {getFormBuilderSchema} from './schemas/builder'
-import fieldSelect from './schemas/fieldSelect'
-import {getGroupSchema} from './schemas/group'
-import logic from './schemas/logic'
-import {getReusableGroupSchema} from './schemas/reusableGroup'
+import {getFieldsetSchema} from './schemas/builder/fieldset'
+import formPartTarget from './schemas/builder/formPartTarget'
+import logic from './schemas/builder/logic'
+import action from './schemas/builder/logic/action'
+import condition from './schemas/builder/logic/condition'
+import conditionValue from './schemas/builder/logic/conditionValue'
+import {getReusableFieldsetSchema} from './schemas/builder/reusableFieldset'
 
 export interface PluginConfig {
   /**
@@ -92,9 +95,12 @@ export const configureFormPlugin = (
           getFormBuilderSchema(fieldDefs),
           ...fieldDefs.map((field) => field.schema),
           logic,
-          fieldSelect,
-          getGroupSchema(fieldDefs),
-          getReusableGroupSchema(fieldDefs),
+          condition,
+          conditionValue,
+          action,
+          formPartTarget,
+          getFieldsetSchema(fieldDefs),
+          getReusableFieldsetSchema(fieldDefs),
         ],
       },
     }),
