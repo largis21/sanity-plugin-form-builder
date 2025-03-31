@@ -47,12 +47,15 @@ function FieldSelectInput(props: StringInputProps) {
     }
 
     const fetchSlugs = async () => {
-      const fetchedSlugs = await getAllFieldSlugs(fields, client)
+      const fetchedSlugs = await getAllFieldSlugs(fields, client, {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        getOnlyFieldSlugs: (props?.schemaType.options as any)?.getOnlyFieldSlugs,
+      })
       setSlugs(fetchedSlugs)
     }
 
     fetchSlugs()
-  }, [client, fields])
+  }, [client, fields, props?.schemaType.options])
 
   const onChange: FormEventHandler<HTMLSelectElement> = (e) => {
     setOptimisticValue(e.currentTarget.value)

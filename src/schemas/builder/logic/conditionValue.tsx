@@ -3,10 +3,7 @@ import {defineField, defineType} from 'sanity'
 import {schemaTypeNames} from '../../../lib/constants'
 
 type PreviewValue =
-  | {
-      type: 'field'
-      field: string
-    }
+  | {type: 'field'; field: string}
   | {type: 'stringLiteral'; stringLiteral: string}
   | {type: 'numberLiteral'; numberLiteral: number}
   | {type: 'booleanLiteral'; booleanLiteral: boolean}
