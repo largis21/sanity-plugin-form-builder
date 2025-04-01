@@ -1,6 +1,6 @@
 export {configureFormPlugin} from './configureFormPlugin'
 export {defaultCheckboxField} from './defaultFields/defaultCheckboxField'
-export {defaultStringField} from './defaultFields/defaultStringField'
+export {defaultTextareaField} from './defaultFields/defaultTextareaField'
 export {defaultTextField} from './defaultFields/defaultTextField'
 export {schemaTypeNames} from './lib/constants'
 export {

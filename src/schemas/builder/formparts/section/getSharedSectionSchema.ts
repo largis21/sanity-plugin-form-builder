@@ -1,8 +1,8 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
+import {schemaTypeNames} from '../../../../lib/constants'
 import {FormFieldDefinition} from '../../../../lib/defineFormField'
 import {fieldsArrayValidator} from '../../../../lib/fieldsArrayValidation'
-import {schemaTypeNames} from '../../../../lib/constants'
 
 export const _getSharedSectionSchema = (
   options: {

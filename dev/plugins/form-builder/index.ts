@@ -1,12 +1,12 @@
 import {
   configureFormPlugin,
-  defaultStringField,
-  defaultTextField,
   defaultCheckboxField,
+  defaultTextField,
+  defaultTextareaField,
 } from 'sanity-plugin-form-builder'
 
 const formPluginReturns = configureFormPlugin({
-  fields: [defaultStringField, defaultTextField, defaultCheckboxField],
+  fields: [defaultTextField, defaultTextareaField, defaultCheckboxField],
 })
 
 export const {

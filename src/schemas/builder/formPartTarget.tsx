@@ -1,6 +1,7 @@
 import {Flex, Select, Stack, Text} from '@sanity/ui'
 import {FormEventHandler, useEffect, useState} from 'react'
 import {
+  CustomValidatorResult,
   defineField,
   defineType,
   FormFieldValidationStatus,
@@ -11,6 +12,7 @@ import {
   unset,
   useClient,
   useFormValue,
+  ValidationContext,
 } from 'sanity'
 
 import {schemaTypeNames} from '../../lib/constants'
@@ -34,15 +36,10 @@ export default defineType({
   name: schemaTypeNames.formPartTarget,
   type: 'object',
   fields: [
-    defineField({
-      name: 'path',
-      type: 'string',
-    }),
-    defineField({
-      name: 'titleCache',
-      type: 'string',
-    }),
+    defineField({name: 'path', type: 'string'}),
+    defineField({name: 'titleCache', type: 'string'}),
   ],
+  validation: (Rule) => Rule.custom(formPartTargetValidation),
   components: {
     field: (props) => {
       return (
@@ -67,6 +64,31 @@ export default defineType({
 export type FormPartTargetValue = {
   path: string
   titleCache: string
+}
+
+// Checks if the referenced formpart exists
+export async function formPartTargetValidation(
+  value: unknown,
+  context: ValidationContext,
+): Promise<CustomValidatorResult> {
+  // The callee should handle required validation
+  if (!value) return true
+  if (!unknownHasProperty(value, 'path')) {
+    return 'Invalid value'
+  }
+  if (typeof value.path !== 'string') {
+    return 'Invalid value'
+  }
+
+  const client = context.getClient({apiVersion: '2021-03-25'})
+
+  const pathQuery = value.path.replace(/\[(.*?)\]/g, '[$1][0]').replace(/\.->/g, '->')
+
+  const referencedFormPart = await client.fetch(`*[_id == $id][0].${pathQuery}`, {
+    id: context.document?._id,
+  })
+
+  return referencedFormPart ? true : 'Referenced form part does not exist'
 }
 
 function FieldSelectInput(props: ObjectInputProps<FormPartTargetValue>) {

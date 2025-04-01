@@ -2,22 +2,24 @@ import {Path, SanityClient, SlugValue} from 'sanity'
 
 import {getFormFieldName, isFormFieldName, schemaTypeNames} from './constants'
 
-export type FieldsArrayValue = ({_key: string} & (
-  | {_type: ReturnType<typeof getFormFieldName>; slug?: SlugValue; title: string}
-  | {
-      _type: typeof schemaTypeNames.fieldset
-      slug?: SlugValue
-      title: string
-      fields: FieldsArrayValue
-    }
-  | {
-      _type: typeof schemaTypeNames.section
-      slug?: SlugValue
-      title: string
-      fields: FieldsArrayValue
-    }
-  | {_type: 'reference'; _ref: string} // in this case we need to fetch the document and validate the slug
-))[]
+export type FieldsArrayValue =
+  | ({_key: string} & (
+      | {_type: ReturnType<typeof getFormFieldName>; slug?: SlugValue; title: string}
+      | {
+          _type: typeof schemaTypeNames.fieldset
+          slug?: SlugValue
+          title: string
+          fields: FieldsArrayValue
+        }
+      | {
+          _type: typeof schemaTypeNames.section
+          slug?: SlugValue
+          title: string
+          fields: FieldsArrayValue
+        }
+      | {_type: 'reference'; _ref: string} // in this case we need to fetch the document and validate the slug
+    ))[]
+  | undefined
 
 type SlugsResult = {formPartType: string; path: Path; value: string; title: string}[]
 
@@ -44,11 +46,11 @@ export async function getAllFieldSlugs(
   const slugs: SlugsResult = []
   const reusableFormPartRefs: {path: Path; _ref: string}[] = []
 
-  for (const field of fields) {
+  for (const field of fields || []) {
     if (isFormFieldName(field._type) && 'slug' in field && field.slug?.current) {
       slugs.push({
         formPartType: 'Field',
-        path: [...options.path, {_key: field._key}, 'slug'],
+        path: [...options.path, {_key: field._key}],
         value: field.slug.current,
         title: `${options.pathTitle ? `${options.pathTitle}.` : ''}${field.title}`,
       })
@@ -58,7 +60,7 @@ export async function getAllFieldSlugs(
 
     if (field._type === 'reference') {
       reusableFormPartRefs.push({
-        path: [...options.path, {_key: field._key}],
+        path: [...options.path, {_key: field._key}, '->'],
         _ref: field._ref,
       })
     }
@@ -77,7 +79,7 @@ export async function getAllFieldSlugs(
             ]),
         ...(await getAllFieldSlugs(field.fields, client, {
           ...options,
-          path: [...options.path, {_key: field._key}, 'fields'],
+          path: [...options.path, {_key: field._key}],
           pathTitle: `${options.pathTitle ? `${options.pathTitle}.` : ''}${field.title}`,
         })),
       )
@@ -127,7 +129,7 @@ async function getReusableFormPartSlug(
               reusableFormPart._type === schemaTypeNames.reusableFieldset
                 ? 'Reusable Fieldset'
                 : 'Unknown',
-            path: [...ref.path, 'fields'],
+            path: ref.path,
             value: reusableFormPart.slug.current,
             title: `${options.pathTitle ? `${options.pathTitle}.` : ''}${reusableFormPart.title}`,
           },

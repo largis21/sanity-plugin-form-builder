@@ -1,5 +1,6 @@
 import {EqualIcon} from '@sanity/icons'
-import {defineField, defineType} from 'sanity'
+import {Card, Text} from '@sanity/ui'
+import {defineField, defineType, useFormValue} from 'sanity'
 
 import {schemaTypeNames} from '../../../../lib/constants'
 import {getPrettyLogicValue} from '../logicValue'
@@ -24,6 +25,28 @@ export default defineType({
     },
   },
   fields: [
+    defineField({
+      name: 'note',
+      type: 'string',
+      components: {
+        field: (props) => {
+          const path = props.path.slice(0, -1)
+          // eslint-disable-next-line react-hooks/rules-of-hooks, @typescript-eslint/no-explicit-any
+          const binaryOpValue = useFormValue(path) as any
+          return (
+            <Card padding={3} tone="primary">
+              <Text size={1} weight="medium">
+                Current value: <br />
+                {getPrettyLogicValue(binaryOpValue?.left)}{' '}
+                {binaryOpValue?.operator || '[Invalid operator]'}{' '}
+                {getPrettyLogicValue(binaryOpValue?.right)}
+              </Text>
+            </Card>
+          )
+        },
+      },
+    }),
+
     defineField({
       name: 'left',
       type: schemaTypeNames.logicValue,

@@ -53,9 +53,9 @@ export interface PluginConfig {
  * ```ts
  * const {formPlugin} = configureFormPlugin({
  *   fields: [
- *     stringField,
- *     textField,
- *     checkboxField,
+ *     defaultTextField,
+ *     defaultTextareaField,
+ *     defaultSelectField,
  *   ],
  * })
  *

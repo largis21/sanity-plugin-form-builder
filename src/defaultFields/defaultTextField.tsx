@@ -6,8 +6,8 @@ import {autocompleteAttribute} from '../lib/autocompleteAttribute'
 import {defineFormField} from '../lib/defineFormField'
 
 export const defaultTextField = defineFormField({
-  name: 'text',
-  title: 'Multiline Text',
+  name: 'string',
+  title: 'Text',
   select: {
     _type: '_type',
     placeholder: 'placeholder',
@@ -79,7 +79,8 @@ export const defaultTextField = defineFormField({
   },
   components: {
     input: (props) => (
-      <textarea
+      <input
+        type="text"
         placeholder={props.field.placeholder as string | undefined}
         required={props.field.required}
         minLength={props.field.minLength as number | undefined}
@@ -93,7 +94,6 @@ export const defaultTextField = defineFormField({
           border: '1px solid #ccc',
           color: '#000',
           borderRadius: '4px',
-          resize: 'vertical',
         }}
         {...props.register?.(props.field.name)}
       />
