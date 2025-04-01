@@ -63,7 +63,7 @@ export default defineType({
       title: 'Target',
       hidden: ({parent}) => parent?.type !== 'field',
       type: schemaTypeNames.formPartTarget,
-      options: {getOnlyFieldSlugs: true},
+      options: {getOnlyFields: true},
     }),
 
     defineField({

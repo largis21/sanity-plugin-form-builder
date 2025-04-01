@@ -68,7 +68,7 @@ export const getFormBuilderSchema = (formFields: FormFieldDefinition[]) =>
         type: 'array',
         of: [
           defineArrayMember({type: schemaTypeNames.section}),
-          defineArrayMember({type: schemaTypeNames.reusableSection}),
+          defineArrayMember({type: 'reference', to: [{type: schemaTypeNames.reusableSection}]}),
         ],
         group: 'builder',
         validation: (Rule) =>

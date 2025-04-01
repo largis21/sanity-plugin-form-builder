@@ -15,8 +15,8 @@ import {
   ValidationContext,
 } from 'sanity'
 
-import {schemaTypeNames} from '../../lib/constants'
-import {FieldsArrayValue, getAllFieldSlugs} from '../../lib/getAllFieldSlugs'
+import {schemaTypeNames, stripScopes} from '../../lib/constants'
+import {FieldsArrayValue, getAllFormparts} from '../../lib/getAllFormparts'
 import {unknownHasProperty} from '../../lib/unknownHasProperty'
 
 export type FormPartTargetDefinition = Omit<ObjectDefinition, 'options'> & {
@@ -84,6 +84,13 @@ export async function formPartTargetValidation(
 
   const pathQuery = value.path.replace(/\[(.*?)\]/g, '[$1][0]').replace(/\.->/g, '->')
 
+  if (
+    (context.document?.formType === 'simple' && !value.path.startsWith('fields')) ||
+    (context.document?.formType === 'sections' && !value.path.startsWith('sections'))
+  ) {
+    return "Referenced form part doesn't exist"
+  }
+
   const referencedFormPart = await client.fetch(`*[_id == $id][0].${pathQuery}`, {
     id: context.document?._id,
   })
@@ -95,7 +102,7 @@ function FieldSelectInput(props: ObjectInputProps<FormPartTargetValue>) {
   const [optimisticValue, setOptimisticValue] = useState<FormPartTargetValue>(
     props.value || {titleCache: '', path: ''},
   )
-  const [slugs, setSlugs] = useState<Awaited<ReturnType<typeof getAllFieldSlugs>>>([])
+  const [formparts, setFormparts] = useState<Awaited<ReturnType<typeof getAllFormparts>>>([])
   const client = useClient({apiVersion: '2021-03-25'})
 
   const formType = useFormValue(['formType']) as string | undefined
@@ -107,24 +114,25 @@ function FieldSelectInput(props: ObjectInputProps<FormPartTargetValue>) {
 
     const fieldsToUse = (formType === 'simple' ? fields : sections) || []
 
-    const fetchSlugs = async () => {
-      const fetchedSlugs = await getAllFieldSlugs(fieldsToUse, client, {
-        getOnlyFieldSlugs: unknownHasProperty(props?.schemaType?.options, 'getOnlyFieldSlugs')
-          ? (props?.schemaType?.options.getOnlyFieldSlugs as boolean)
+    const fetchFormparts = async () => {
+      const fetchedFormparts = await getAllFormparts(fieldsToUse, client, {
+        getOnlyFields: unknownHasProperty(props?.schemaType?.options, 'getOnlyFields')
+          ? (props?.schemaType?.options.getOnlyFields as boolean)
           : false,
-        path: ['fields'],
+        path: [formType === 'simple' ? 'fields' : 'sections'],
       })
-      setSlugs(fetchedSlugs)
+      setFormparts(fetchedFormparts)
     }
 
-    fetchSlugs()
+    fetchFormparts()
   }, [client, fields, formType, props?.schemaType?.options, sections])
 
   const onChange: FormEventHandler<HTMLSelectElement> = (e) => {
     const value: FormPartTargetValue = {
       path: e.currentTarget.value,
       titleCache:
-        slugs.find((slug) => pathToString(slug.path) === e.currentTarget.value)?.title || '',
+        formparts.find((slug) => pathToString(slug.path) === e.currentTarget.value)?.titleCache ||
+        '',
     }
     setOptimisticValue(value)
     props.onChange(e.currentTarget.value ? set(value) : unset())
@@ -133,13 +141,13 @@ function FieldSelectInput(props: ObjectInputProps<FormPartTargetValue>) {
   return (
     <Select onChange={onChange} value={optimisticValue.path}>
       <option value="" />
-      {slugs?.map((slug) => (
+      {formparts?.map((formpart) => (
         <option
-          key={pathToString(slug.path)}
-          value={pathToString(slug.path)}
+          key={pathToString(formpart.path)}
+          value={pathToString(formpart.path)}
           style={{whiteSpace: 'pre', fontFamily: 'monospace'}}
         >
-          {`(${slug.formPartType})`.padEnd(19, '\u00A0')} {slug.title}
+          {`(${stripScopes(formpart.value._type)})`.padEnd(19, '\u00A0')} {formpart.titleCache}
         </option>
       ))}
     </Select>

@@ -21,38 +21,42 @@ export type FieldsArrayValue =
     ))[]
   | undefined
 
-type SlugsResult = {formPartType: string; path: Path; value: string; title: string}[]
+type FormPart = {
+  _type: string
+  slug?: SlugValue
+}
+
+type Result = {path: Path; value: FormPart; titleCache: string}[]
 
 type Options = {
   getChildren?: boolean
-  getOnlyFieldSlugs?: boolean
+  getOnlyFields?: boolean
   path?: Path
   pathTitle?: string
 }
 
-export async function getAllFieldSlugs(
+export async function getAllFormparts(
   fields: FieldsArrayValue,
   client: SanityClient,
   _options: Options = {},
-): Promise<SlugsResult> {
+): Promise<Result> {
   const options = {
     getChildren: true,
-    getOnlyFieldSlugs: false,
+    getOnlyFields: false,
     path: [],
     pathTitle: '',
     ..._options,
   }
 
-  const slugs: SlugsResult = []
+  const formparts: Result = []
   const reusableFormPartRefs: {path: Path; _ref: string}[] = []
 
   for (const field of fields || []) {
     if (isFormFieldName(field._type) && 'slug' in field && field.slug?.current) {
-      slugs.push({
-        formPartType: 'Field',
+      formparts.push({
         path: [...options.path, {_key: field._key}],
-        value: field.slug.current,
-        title: `${options.pathTitle ? `${options.pathTitle}.` : ''}${field.title}`,
+        value: field,
+        titleCache: `${options.pathTitle ? `${options.pathTitle}.` : ''}${field.title}`,
       })
 
       continue
@@ -65,19 +69,19 @@ export async function getAllFieldSlugs(
       })
     }
 
-    if (field._type === schemaTypeNames.fieldset && field.slug?.current) {
-      slugs.push(
-        ...(options.getOnlyFieldSlugs
-          ? []
-          : [
-              {
-                formPartType: 'Fieldset',
-                path: [...options.path, {_key: field._key}],
-                value: field.slug.current,
-                title: `${options.pathTitle ? `${options.pathTitle}.` : ''}${field.title}`,
-              },
-            ]),
-        ...(await getAllFieldSlugs(field.fields, client, {
+    if (
+      (field._type === schemaTypeNames.fieldset || field._type === schemaTypeNames.section) &&
+      field.slug?.current
+    ) {
+      if (!options.getOnlyFields) {
+        formparts.push({
+          path: [...options.path, {_key: field._key}],
+          value: field,
+          titleCache: `${options.pathTitle ? `${options.pathTitle}.` : ''}${field.title}`,
+        })
+      }
+      formparts.push(
+        ...(await getAllFormparts(field.fields, client, {
           ...options,
           path: [...options.path, {_key: field._key}],
           pathTitle: `${options.pathTitle ? `${options.pathTitle}.` : ''}${field.title}`,
@@ -87,7 +91,7 @@ export async function getAllFieldSlugs(
   }
 
   if (!reusableFormPartRefs.length) {
-    return slugs
+    return formparts
   }
 
   const reusableFormParts = await Promise.all(
@@ -95,17 +99,17 @@ export async function getAllFieldSlugs(
   )
 
   reusableFormParts.forEach((formPart) => {
-    slugs.push(...formPart)
+    formparts.push(...formPart)
   })
 
-  return slugs
+  return formparts
 }
 
 async function getReusableFormPartSlug(
   ref: {path: Path; _ref: string},
   client: SanityClient,
   options: Options,
-) {
+): Promise<Result> {
   const reusableFormPart = await client.fetch<{
     _type: string
     slug?: SlugValue
@@ -121,21 +125,17 @@ async function getReusableFormPartSlug(
   }
 
   return [
-    ...(options.getOnlyFieldSlugs
+    ...(options.getOnlyFields
       ? []
       : [
           {
-            formPartType:
-              reusableFormPart._type === schemaTypeNames.reusableFieldset
-                ? 'Reusable Fieldset'
-                : 'Unknown',
             path: ref.path,
-            value: reusableFormPart.slug.current,
-            title: `${options.pathTitle ? `${options.pathTitle}.` : ''}${reusableFormPart.title}`,
+            value: reusableFormPart,
+            titleCache: `${options.pathTitle ? `${options.pathTitle}.` : ''}${reusableFormPart.title}`,
           },
         ]),
     ...(options.getChildren && reusableFormPart.fields?.length
-      ? await getAllFieldSlugs(reusableFormPart.fields, client, {
+      ? await getAllFormparts(reusableFormPart.fields, client, {
           ...options,
           path: [...ref.path, 'fields'],
           pathTitle: `${options.pathTitle ? `${options.pathTitle}.` : ''}${reusableFormPart.title}`,

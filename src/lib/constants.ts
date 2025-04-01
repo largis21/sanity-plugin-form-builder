@@ -56,3 +56,7 @@ export function getFormFieldName(name: string) {
 
 export const isFormFieldName = (name: string): name is ReturnType<typeof getFormFieldName> =>
   name.startsWith(`${buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, FIELD_SCOPE)}.`)
+
+export function stripScopes(nameWithScopes: string) {
+  return nameWithScopes.split('.').pop()
+}

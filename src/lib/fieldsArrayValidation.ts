@@ -1,6 +1,6 @@
 import {ArrayRule, CustomValidator, CustomValidatorResult, ValidationBuilder} from 'sanity'
 
-import {FieldsArrayValue, getAllFieldSlugs} from './getAllFieldSlugs'
+import {FieldsArrayValue, getAllFormparts} from './getAllFormparts'
 import {TODO} from './types'
 
 export const noFieldsDefinedValidator = (value: unknown): CustomValidatorResult => {
@@ -15,21 +15,21 @@ export const fieldSlugsValidator: CustomValidator<unknown> = async (value, conte
     return true
   }
 
-  const slugs = await getAllFieldSlugs(
-    value as TODO,
+  const formparts = await getAllFormparts(
+    value as TODO, // Validate value is FieldsArrayValue
     context.getClient({apiVersion: '2021-03-25'}),
-    {
-      getChildren: false,
-    },
+    {getChildren: false},
   )
 
-  const nonUniqueSlugs = slugs.filter(
-    (slug) => slugs.filter((otherSlug) => otherSlug.value === slug.value).length > 1,
+  const nonUniqueSlugs = formparts.filter(
+    (slug) =>
+      formparts.filter((otherSlug) => otherSlug.value.slug?.current === slug.value.slug?.current)
+        .length > 1,
   )
 
   return (
     !nonUniqueSlugs.length || {
-      paths: nonUniqueSlugs.map((slug) => slug.path),
+      paths: nonUniqueSlugs.map((slug) => [...slug.path, 'slug']),
       message: 'Slugs must be unique',
     }
   )
@@ -37,4 +37,4 @@ export const fieldSlugsValidator: CustomValidator<unknown> = async (value, conte
 export const fieldsArrayValidator: ValidationBuilder<
   ArrayRule<FieldsArrayValue>,
   FieldsArrayValue
-> = (Rule) => [Rule.custom(noFieldsDefinedValidator), Rule.custom(fieldSlugsValidator)]
+> = (Rule) => [Rule.custom(noFieldsDefinedValidator).warning(), Rule.custom(fieldSlugsValidator)]
