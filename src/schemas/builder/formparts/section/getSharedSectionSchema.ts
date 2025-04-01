@@ -1,16 +1,21 @@
-import {ProjectsIcon} from '@sanity/icons'
-import {defineField, defineType} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 
-import {schemaTypeNames} from '../../lib/constants'
-import {FormFieldDefinition} from '../../lib/defineFormField'
-import {fieldsArrayValidator} from '../../lib/fieldsArrayValidation'
+import {FormFieldDefinition} from '../../../../lib/defineFormField'
+import {fieldsArrayValidator} from '../../../../lib/fieldsArrayValidation'
+import {schemaTypeNames} from '../../../../lib/constants'
 
-export const getFieldsetSchema = (fieldDefs: FormFieldDefinition[]) =>
+export const _getSharedSectionSchema = (
+  options: {
+    name: string
+    title: string
+    type: 'document' | 'object'
+  },
+  fieldDefs: FormFieldDefinition[],
+) =>
   defineType({
-    name: schemaTypeNames.fieldset,
-    title: 'Fieldset',
-    type: 'object',
-    icon: ProjectsIcon,
+    name: options.name,
+    title: options.title,
+    type: options.type,
     fieldsets: [{name: 'title', title: '', options: {columns: 2, collapsible: false}}],
     preview: {
       select: {
@@ -20,7 +25,7 @@ export const getFieldsetSchema = (fieldDefs: FormFieldDefinition[]) =>
       prepare({title, fields}) {
         return {
           title: title,
-          subtitle: `Fieldset with ${fields?.length || 0} field${fields?.length === 1 ? '' : 's'}`,
+          subtitle: `Section with ${fields?.length || 0} field${fields?.length === 1 ? '' : 's'}`,
         }
       },
     },
@@ -50,7 +55,11 @@ export const getFieldsetSchema = (fieldDefs: FormFieldDefinition[]) =>
         name: 'fields',
         title: 'Fields',
         type: 'array',
-        of: fieldDefs.map((field) => ({type: field.schema.name})),
+        of: [
+          defineArrayMember({type: schemaTypeNames.fieldset}),
+          defineArrayMember({type: 'reference', to: [{type: 'reusableFieldset'}]}),
+          ...fieldDefs.map((field) => ({type: field.schema.name})),
+        ],
         validation: fieldsArrayValidator,
       }),
     ],

@@ -15,13 +15,16 @@ import {
   FormProjectionResult,
 } from './queries/createGroqProjectionForForm'
 import {getFormBuilderSchema} from './schemas/builder'
-import {getFieldsetSchema} from './schemas/builder/fieldset'
+import {getFieldsetSchema} from './schemas/builder/formparts/fieldset/fieldset'
+import {getReusableFieldsetSchema} from './schemas/builder/formparts/fieldset/reusableFieldset'
 import formPartTarget from './schemas/builder/formPartTarget'
 import logic from './schemas/builder/logic'
-import action from './schemas/builder/logic/action'
-import condition from './schemas/builder/logic/condition'
-import conditionValue from './schemas/builder/logic/conditionValue'
-import {getReusableFieldsetSchema} from './schemas/builder/reusableFieldset'
+import actions from './schemas/builder/logic/actions'
+import setFormpartVisibility from './schemas/builder/logic/actions/setFormpartVisibility'
+import conditions from './schemas/builder/logic/conditions'
+import binaryOpCondition from './schemas/builder/logic/conditions/binaryOpCondition'
+import hasValueCondition from './schemas/builder/logic/conditions/hasValueCondition'
+import logicValue from './schemas/builder/logic/logicValue'
 
 export interface PluginConfig {
   /**
@@ -92,12 +95,20 @@ export const configureFormPlugin = (
       name: 'sanity-plugin-form-builder',
       schema: {
         types: [
+          // Builder
           getFormBuilderSchema(fieldDefs),
           ...fieldDefs.map((field) => field.schema),
+
+          // Logic
           logic,
-          condition,
-          conditionValue,
-          action,
+          logicValue,
+          conditions,
+          hasValueCondition,
+          binaryOpCondition,
+          actions,
+          setFormpartVisibility,
+
+          // Formparts
           formPartTarget,
           getFieldsetSchema(fieldDefs),
           getReusableFieldsetSchema(fieldDefs),

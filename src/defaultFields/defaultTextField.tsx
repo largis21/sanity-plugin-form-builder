@@ -1,3 +1,4 @@
+import {TextIcon} from '@sanity/icons'
 import {defineField} from 'sanity'
 import {z} from 'zod'
 
@@ -46,6 +47,7 @@ export const defaultTextField = defineFormField({
     return schema.nullable()
   },
   schema: {
+    icon: TextIcon,
     fields: [
       defineField({
         name: 'placeholder',

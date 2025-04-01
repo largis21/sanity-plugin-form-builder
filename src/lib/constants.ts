@@ -15,28 +15,39 @@ export const PLUGIN_SCOPE = 'form-plugin' as const
 export const BUILDER_SCOPE = 'builder' as const
 export const FIELD_SCOPE = 'field' as const
 export const LOGIC_SCOPE = 'logic' as const
-export const LOGIC_CONDITION_SCOPE = 'condition' as const
+export const CONDITION_SCOPE = 'conditions' as const
+export const ACTIONS_SCOPE = 'actions' as const
 export const SUBMISSION_SCOPE = 'submission' as const
 
 export const schemaTypeNames = {
   // prettier-ignore
-  formBuilder:      buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE),
+  formBuilder:           buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE),
   // prettier-ignore
-  formPartTarget:   buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, 'formPartTarget'),
+  formPartTarget:        buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, 'formPartTarget'),
   // prettier-ignore
-  fieldset:         buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, 'fieldset'),
+  fieldset:              buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, 'fieldset'),
   // prettier-ignore
-  reusableFieldset: buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, 'reusableFieldset'),
+  reusableFieldset:      buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, 'reusableFieldset'),
   // prettier-ignore
-  logic:            buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, LOGIC_SCOPE),
+  section:               buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, 'section'),
   // prettier-ignore
-  condition:        buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, LOGIC_SCOPE, LOGIC_CONDITION_SCOPE),
+  reusableSection:       buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, 'reusableSection'),
   // prettier-ignore
-  conditionValue:   buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, LOGIC_CONDITION_SCOPE, 'value'),
+  logic:                 buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, LOGIC_SCOPE),
   // prettier-ignore
-  action:           buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, LOGIC_CONDITION_SCOPE, 'action'),
+  conditions:            buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, LOGIC_SCOPE, CONDITION_SCOPE),
   // prettier-ignore
-  submission:       buildTypeName(PLUGIN_SCOPE, SUBMISSION_SCOPE),
+  hasValueCondition:     buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, LOGIC_SCOPE, CONDITION_SCOPE, 'hasValue'),
+  // prettier-ignore
+  binaryOpCondition:     buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, LOGIC_SCOPE, CONDITION_SCOPE, 'binaryOp'),
+  // prettier-ignore
+  logicValue:            buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, LOGIC_SCOPE, 'value'),
+  // prettier-ignore
+  actions:               buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, ACTIONS_SCOPE),
+  // prettier-ignore
+  setFormpartVisibility: buildTypeName(PLUGIN_SCOPE, BUILDER_SCOPE, ACTIONS_SCOPE, 'setFormpartVisibility'),
+  // prettier-ignore
+  submission:            buildTypeName(PLUGIN_SCOPE, SUBMISSION_SCOPE),
 } as const
 
 export function getFormFieldName(name: string) {

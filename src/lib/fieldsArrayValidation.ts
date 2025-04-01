@@ -5,7 +5,8 @@ import {FieldsArrayValue, getAllFieldSlugs} from './getAllFieldSlugs'
 export const fieldsArrayValidator: ValidationBuilder<
   ArrayRule<FieldsArrayValue>,
   FieldsArrayValue
-> = (Rule) =>
+> = (Rule) => [
+  Rule.required().min(1).warning('No fields'),
   Rule.custom(async (value, context) => {
     if (!value || !value.length) {
       return true
@@ -25,4 +26,5 @@ export const fieldsArrayValidator: ValidationBuilder<
         message: 'Slugs must be unique',
       }
     )
-  })
+  }),
+]

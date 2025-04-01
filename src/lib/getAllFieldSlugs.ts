@@ -10,30 +10,47 @@ export type FieldsArrayValue = ({_key: string} & (
       title: string
       fields: FieldsArrayValue
     }
+  | {
+      _type: typeof schemaTypeNames.section
+      slug?: SlugValue
+      title: string
+      fields: FieldsArrayValue
+    }
   | {_type: 'reference'; _ref: string} // in this case we need to fetch the document and validate the slug
 ))[]
+
+type SlugsResult = {formPartType: string; path: Path; value: string; title: string}[]
+
+type Options = {
+  getChildren?: boolean
+  getOnlyFieldSlugs?: boolean
+  path?: Path
+  pathTitle?: string
+}
 
 export async function getAllFieldSlugs(
   fields: FieldsArrayValue,
   client: SanityClient,
-  options: {
-    getChildren?: boolean
-    getOnlyFieldSlugs?: boolean
-    path?: Path
-    pathTitle?: string
-  } = {},
-) {
-  const {getChildren = true, getOnlyFieldSlugs = false, path = [], pathTitle} = options
+  _options: Options = {},
+): Promise<SlugsResult> {
+  const options = {
+    getChildren: true,
+    getOnlyFieldSlugs: false,
+    path: [],
+    pathTitle: '',
+    ..._options,
+  }
 
-  const slugs: {path: Path; value: string; title: string}[] = []
+  const slugs: SlugsResult = []
   const reusableFormPartRefs: {path: Path; _ref: string}[] = []
 
   for (const field of fields) {
     if (isFormFieldName(field._type) && 'slug' in field && field.slug?.current) {
       slugs.push({
-        path: [...path, {_key: field._key}],
+        formPartType: 'Field',
+        path: [...options.path, {_key: field._key}, 'slug'],
         value: field.slug.current,
-        title: `${pathTitle ? `${pathTitle}.` : ''}${field.title}`,
+        title: `${options.pathTitle ? `${options.pathTitle}.` : ''}${field.title}`,
       })
 
       continue
@@ -41,69 +58,86 @@ export async function getAllFieldSlugs(
 
     if (field._type === 'reference') {
       reusableFormPartRefs.push({
-        path: [...path, {_key: field._key}],
+        path: [...options.path, {_key: field._key}],
         _ref: field._ref,
       })
     }
 
-    if (getOnlyFieldSlugs) continue
-
     if (field._type === schemaTypeNames.fieldset && field.slug?.current) {
       slugs.push(
-        {
-          path: [...path, {_key: field._key}],
-          value: field.slug.current,
-          title: `${pathTitle ? `${pathTitle}.` : ''}${field.title}`,
-        },
+        ...(options.getOnlyFieldSlugs
+          ? []
+          : [
+              {
+                formPartType: 'Fieldset',
+                path: [...options.path, {_key: field._key}],
+                value: field.slug.current,
+                title: `${options.pathTitle ? `${options.pathTitle}.` : ''}${field.title}`,
+              },
+            ]),
         ...(await getAllFieldSlugs(field.fields, client, {
-          getChildren,
-          getOnlyFieldSlugs,
-          path: [...path, {_key: field._key}, 'fields'],
-          pathTitle: `${pathTitle ? `${pathTitle}.` : ''}${field.title}`,
+          ...options,
+          path: [...options.path, {_key: field._key}, 'fields'],
+          pathTitle: `${options.pathTitle ? `${options.pathTitle}.` : ''}${field.title}`,
         })),
       )
     }
   }
 
-  if (reusableFormPartRefs.length > 0) {
-    const reusableFormParts = await Promise.all(
-      reusableFormPartRefs.map((ref) =>
-        (async () => {
-          const reusableFormPart = await client.fetch<{
-            slug?: SlugValue
-            title?: string
-            fields?: FieldsArrayValue
-          }>(`*[_id == $id][0] { slug, title, fields }`, {
-            id: ref._ref,
-          })
-
-          if (!reusableFormPart.slug?.current) {
-            console.warn(`This document does not have a slug:`, reusableFormPart)
-            return []
-          }
-
-          return [
-            {
-              path: [...ref.path, 'fields'],
-              value: reusableFormPart.slug.current,
-              title: `${pathTitle ? `${pathTitle}.` : ''}${reusableFormPart.title}`,
-            },
-            ...(getChildren && reusableFormPart.fields?.length
-              ? await getAllFieldSlugs(reusableFormPart.fields, client, {
-                  getChildren,
-                  path: [...ref.path, 'fields'],
-                  pathTitle: `${pathTitle ? `${pathTitle}.` : ''}${reusableFormPart.title}`,
-                })
-              : []),
-          ]
-        })(),
-      ),
-    )
-
-    reusableFormParts.forEach((fieldset) => {
-      slugs.push(...fieldset)
-    })
+  if (!reusableFormPartRefs.length) {
+    return slugs
   }
 
+  const reusableFormParts = await Promise.all(
+    reusableFormPartRefs.map((ref) => getReusableFormPartSlug(ref, client, options)),
+  )
+
+  reusableFormParts.forEach((formPart) => {
+    slugs.push(...formPart)
+  })
+
   return slugs
+}
+
+async function getReusableFormPartSlug(
+  ref: {path: Path; _ref: string},
+  client: SanityClient,
+  options: Options,
+) {
+  const reusableFormPart = await client.fetch<{
+    _type: string
+    slug?: SlugValue
+    title?: string
+    fields?: FieldsArrayValue
+  }>(`*[_id == $id][0] { _type, slug, title, fields }`, {
+    id: ref._ref,
+  })
+
+  if (!reusableFormPart.slug?.current) {
+    console.warn(`This document does not have a slug:`, reusableFormPart)
+    return []
+  }
+
+  return [
+    ...(options.getOnlyFieldSlugs
+      ? []
+      : [
+          {
+            formPartType:
+              reusableFormPart._type === schemaTypeNames.reusableFieldset
+                ? 'Reusable Fieldset'
+                : 'Unknown',
+            path: [...ref.path, 'fields'],
+            value: reusableFormPart.slug.current,
+            title: `${options.pathTitle ? `${options.pathTitle}.` : ''}${reusableFormPart.title}`,
+          },
+        ]),
+    ...(options.getChildren && reusableFormPart.fields?.length
+      ? await getAllFieldSlugs(reusableFormPart.fields, client, {
+          ...options,
+          path: [...ref.path, 'fields'],
+          pathTitle: `${options.pathTitle ? `${options.pathTitle}.` : ''}${reusableFormPart.title}`,
+        })
+      : []),
+  ]
 }

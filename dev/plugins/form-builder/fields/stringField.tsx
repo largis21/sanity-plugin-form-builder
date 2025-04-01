@@ -1,3 +1,4 @@
+import {TextIcon} from '@sanity/icons'
 import {defineField} from 'sanity'
 import {z} from 'zod'
 
@@ -45,7 +46,7 @@ export default defineFormField({
     return schema.nullable()
   },
   schema: {
-    fieldSets: [{name: 'advanced', title: 'Advanced', options: {collapsed: true}}],
+    icon: TextIcon,
     fields: [
       defineField({
         name: 'placeholder',
@@ -65,7 +66,6 @@ export default defineFormField({
             </a>
           </>
         ),
-        fieldset: 'advanced',
       }),
 
       defineField({
@@ -101,7 +101,7 @@ export default defineFormField({
           color: '#000',
           borderRadius: '4px',
         }}
-        {...register(field.name)}
+        {...register?.(field.name)}
       />
     ),
     field: ({field, renderInput, inputProps, error, renderError}) => (

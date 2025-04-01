@@ -3,7 +3,6 @@ import {defineField, FieldDefinition} from 'sanity'
 export const baseFormFields: FieldDefinition[] = [
   defineField({
     name: 'title',
-    title: 'Title',
     type: 'string',
     group: 'field',
     fieldset: 'title',
@@ -12,7 +11,6 @@ export const baseFormFields: FieldDefinition[] = [
 
   defineField({
     name: 'slug',
-    title: 'Name',
     type: 'slug',
     options: {
       source: (value, context) => (context.parent as Record<string, unknown>).title as string,

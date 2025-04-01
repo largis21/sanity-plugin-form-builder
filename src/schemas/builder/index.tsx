@@ -16,15 +16,26 @@ export const getFormBuilderSchema = (formFields: FormFieldDefinition[]) =>
     fields: [
       defineField({
         name: 'title',
-        title: 'Title',
         type: 'string',
         validation: (Rule) => Rule.required(),
         group: 'builder',
       }),
 
       defineField({
+        name: 'formType',
+        type: 'string',
+        options: {
+          list: [
+            {title: 'Simple', value: 'simple'},
+            {title: 'Multiple Sections', value: 'multiSection'},
+          ],
+        },
+        initialValue: 'form',
+        group: 'builder',
+      }),
+
+      defineField({
         name: 'fields',
-        title: 'Fields',
         type: 'array',
         of: [
           defineArrayMember({type: schemaTypeNames.fieldset}),
@@ -33,7 +44,18 @@ export const getFormBuilderSchema = (formFields: FormFieldDefinition[]) =>
         ],
         group: 'builder',
         validation: fieldsArrayValidator,
+        hidden: ({document}) => document?.formType !== 'simple',
       }),
+
+      // defineField({
+      //   name: 'sections',
+      //   type: 'array',
+      //   of: [
+      //     defineArrayMember({type: schemaTypeNames.section}),
+      //     defineArrayMember({type: schemaTypeNames.reusableSection}),
+      //   ],
+      //   hidden: ({document}) => document?.formType !== 'simple',
+      // }),
 
       defineField({
         name: 'logic',

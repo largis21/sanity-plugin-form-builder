@@ -1,3 +1,4 @@
+import {CheckmarkIcon} from '@sanity/icons'
 import {z} from 'zod'
 
 import {defineFormField} from '../lib/defineFormField'
@@ -5,6 +6,9 @@ import {defineFormField} from '../lib/defineFormField'
 export const defaultCheckboxField = defineFormField({
   name: 'checkbox',
   title: 'Checkbox',
+  schema: {
+    icon: CheckmarkIcon,
+  },
   validationSchema: (selection) => {
     if (selection.required) {
       return z.literal(true, {errorMap: () => ({message: 'This field is required'})})
