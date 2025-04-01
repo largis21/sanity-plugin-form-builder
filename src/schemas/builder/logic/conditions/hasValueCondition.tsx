@@ -2,6 +2,7 @@ import {EqualIcon} from '@sanity/icons'
 import {defineField, defineType} from 'sanity'
 
 import {schemaTypeNames} from '../../../../lib/constants'
+import {formPartTargetValidation} from '../../formPartTarget'
 
 export default defineType({
   name: schemaTypeNames.hasValueCondition,
@@ -21,7 +22,7 @@ export default defineType({
     defineField({
       name: 'target',
       type: schemaTypeNames.formPartTarget,
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().custom(formPartTargetValidation),
     }),
   ],
 })

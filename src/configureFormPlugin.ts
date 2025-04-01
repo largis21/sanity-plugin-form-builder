@@ -1,5 +1,5 @@
 import {StandardSchemaV1} from '@standard-schema/spec'
-import {Plugin} from 'sanity'
+import {Plugin, SchemaTypeDefinition} from 'sanity'
 import {DefaultDocumentNodeResolver} from 'sanity/structure'
 
 import {FormFieldsComponent, getFormFieldsComponent} from './components/FormFields'
@@ -17,6 +17,8 @@ import {
 import {getFormBuilderSchema} from './schemas/builder'
 import {getFieldsetSchema} from './schemas/builder/formparts/fieldset/fieldset'
 import {getReusableFieldsetSchema} from './schemas/builder/formparts/fieldset/reusableFieldset'
+import {getReusableSectionSchema} from './schemas/builder/formparts/section/getReusableSectionSchema'
+import {getSectionSchema} from './schemas/builder/formparts/section/getSectionSchema'
 import formPartTarget from './schemas/builder/formPartTarget'
 import logic from './schemas/builder/logic'
 import actions from './schemas/builder/logic/actions'
@@ -25,13 +27,22 @@ import conditions from './schemas/builder/logic/conditions'
 import binaryOpCondition from './schemas/builder/logic/conditions/binaryOpCondition'
 import hasValueCondition from './schemas/builder/logic/conditions/hasValueCondition'
 import logicValue from './schemas/builder/logic/logicValue'
+import {getConfigWithDefaults} from './lib/getConfigWithDefaults'
 
-export interface PluginConfig {
-  /**
-   * An array of field definitions to be used in the form builder
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fields: FormFieldDefinitionInput<any, any>[]
+export type FormPluginConfig = {
+  builder?: {
+    /**
+     * Whether or not to enable the form builder
+     * @defaultValue true
+     */
+    enabled?: boolean
+
+    /**
+     * An array of field definitions to be used in the form builder
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    fields: FormFieldDefinitionInput<any, any>[]
+  }
 
   /**
    * Configuration for the submissions tool
@@ -41,7 +52,7 @@ export interface PluginConfig {
      * Whether or not to enable the submissions tool
      * @defaultValue true
      */
-    enabled: boolean
+    enabled?: boolean
   }
 }
 
@@ -74,7 +85,7 @@ export interface PluginConfig {
  * ```
  */
 export const configureFormPlugin = (
-  config: PluginConfig,
+  config: FormPluginConfig,
 ): {
   formPlugin: Plugin
   groqProjection: string
@@ -82,37 +93,46 @@ export const configureFormPlugin = (
   FormFields: FormFieldsComponent
   getFormValidationSchema: (form: FormProjectionResult) => StandardSchemaV1
 } => {
-  const fieldDefs: FormFieldDefinition[] = config.fields.map((field) =>
-    convertToInternalFormFieldDefinition(field),
-  )
+  const configWithDefaults = getConfigWithDefaults(config)
+
+  const fieldDefs: FormFieldDefinition[] =
+    configWithDefaults.builder?.fields.map((field) =>
+      convertToInternalFormFieldDefinition(field),
+    ) || []
 
   const groqProjection = createGroqProjectionForForm(fieldDefs)
 
   const FormFields = getFormFieldsComponent(fieldDefs)
 
+  const builderTypes: SchemaTypeDefinition[] = [
+    // Main schematype and user-defined fields
+    getFormBuilderSchema(fieldDefs),
+    ...fieldDefs.map((field) => field.schema),
+
+    // Logic
+    logic,
+    logicValue,
+    conditions,
+    hasValueCondition,
+    binaryOpCondition,
+    actions,
+    setFormpartVisibility,
+
+    // Formparts
+    formPartTarget,
+    getFieldsetSchema(fieldDefs),
+    getReusableFieldsetSchema(fieldDefs),
+    getSectionSchema(fieldDefs),
+    getReusableSectionSchema(fieldDefs),
+  ]
+
+  const typesToUse = [...(configWithDefaults.builder.enabled ? builderTypes : [])]
+
   return {
     formPlugin: () => ({
       name: 'sanity-plugin-form-builder',
       schema: {
-        types: [
-          // Builder
-          getFormBuilderSchema(fieldDefs),
-          ...fieldDefs.map((field) => field.schema),
-
-          // Logic
-          logic,
-          logicValue,
-          conditions,
-          hasValueCondition,
-          binaryOpCondition,
-          actions,
-          setFormpartVisibility,
-
-          // Formparts
-          formPartTarget,
-          getFieldsetSchema(fieldDefs),
-          getReusableFieldsetSchema(fieldDefs),
-        ],
+        types: typesToUse,
       },
     }),
     groqProjection,

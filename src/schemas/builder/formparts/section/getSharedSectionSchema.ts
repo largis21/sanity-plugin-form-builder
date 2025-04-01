@@ -57,7 +57,7 @@ export const _getSharedSectionSchema = (
         type: 'array',
         of: [
           defineArrayMember({type: schemaTypeNames.fieldset}),
-          defineArrayMember({type: 'reference', to: [{type: 'reusableFieldset'}]}),
+          defineArrayMember({type: 'reference', to: [{type: schemaTypeNames.reusableFieldset}]}),
           ...fieldDefs.map((field) => ({type: field.schema.name})),
         ],
         validation: fieldsArrayValidator,

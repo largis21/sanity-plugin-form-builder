@@ -1,8 +1,8 @@
-import {defineField, defineType} from 'sanity'
+import {CustomValidatorResult, defineField, defineType, ValidationContext} from 'sanity'
 
 import {schemaTypeNames} from '../../../lib/constants'
 import {unknownHasProperty} from '../../../lib/unknownHasProperty'
-import {FormPartTargetValue} from '../formPartTarget'
+import {formPartTargetValidation, FormPartTargetValue} from '../formPartTarget'
 
 type PreviewValue =
   | {type?: 'field'; field?: FormPartTargetValue}
@@ -43,7 +43,7 @@ export default defineType({
       }
     },
   },
-  validation: (Rule) => Rule.custom((value) => logicValueValidator(value)),
+  validation: (Rule) => Rule.custom((value, context) => logicValueValidator(value, context)),
   fields: [
     defineField({
       name: 'type',
@@ -89,7 +89,10 @@ export default defineType({
   ],
 })
 
-export function logicValueValidator(value: unknown) {
+export async function logicValueValidator(
+  value: unknown,
+  context: ValidationContext,
+): Promise<CustomValidatorResult> {
   if (!unknownHasProperty(value, 'type')) {
     return {message: 'Type is required', path: ['type']}
   }
@@ -111,7 +114,14 @@ export function logicValueValidator(value: unknown) {
       if (!value.field.path) {
         return {message: 'Field is required', path: ['field', 'path']}
       }
-      break
+
+      const fieldValidatorContext: ValidationContext = {
+        ...context,
+        parent: value,
+        path: context.path && [...context.path, 'field'],
+      }
+
+      return await formPartTargetValidation(value.field, fieldValidatorContext)
     }
     case 'stringLiteral': {
       if (!unknownHasProperty(value, 'stringLiteral')) {
